@@ -4,7 +4,7 @@ import os
 import random
 import re
 from typing import List, Dict
-import pandas
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -14,7 +14,6 @@ from sklearn.metrics import classification_report, accuracy_score, f1_score
 import lightgbm as lgb
 import fitz 
 import numpy as np
-import json
 import csv
 
 load_dotenv()
@@ -199,20 +198,32 @@ def train_lightweight_classifiers(documents: List[str], labels: List[str]):
 
 def save_results(taxonomy, evaluation_metrics, classification_reports):
     # Save taxonomy
-    with open('generated_taxonomy.json', 'w') as f:
-        json.dump(taxonomy, f, indent=2)
-    
+    with open('generated_taxonomy.csv', 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Taxonomy'])
+        writer.writerow([taxonomy])
+
     # Save evaluation metrics
-    with open('evaluation_metrics.csv', 'w', newline='') as f:
+    with open('evaluation_metrics.csv', 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['Metric', 'Value'])
         for metric, value in evaluation_metrics.items():
             writer.writerow([metric, value])
-    
+
     # Save classification reports
     for model_name, report in classification_reports.items():
-        with open(f'{model_name}_classification_report.txt', 'w') as f:
-            f.write(report)
+        # Convert the classification report to a DataFrame
+        report_lines = report.split('\n')
+        report_data = []
+        for line in report_lines[2:-5]:  # Skip header and footer
+            row = line.split()
+            if len(row) == 5:  # It's a regular row
+                report_data.append(row)
+            elif len(row) == 6:  # It's the 'accuracy' row
+                report_data.append([row[0], row[1], row[2], row[3], row[4]])
+        
+        df = pd.DataFrame(report_data, columns=['Class', 'Precision', 'Recall', 'F1-Score', 'Support'])
+        df.to_csv(f'{model_name}_classification_report.csv', index=False)
 
 def main(folder_path: str, use_case: str):
     # Phase 1: Taxonomy Generation
