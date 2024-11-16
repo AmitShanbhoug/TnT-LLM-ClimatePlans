@@ -33,7 +33,7 @@ def count_tokens(text: str) -> int:
     return len(text.split())
 
 # Updated function to handle batches and ensure token limit is not exceeded
-def call_gpt_api_batch(prompts: List[str], model="gpt-4", max_tokens=7000) -> List[str]:
+def call_gpt_api_batch(prompts: List[str], model="gpt-4o-mini", max_tokens=7000) -> List[str]:
     responses = []
     for prompt in prompts:
         token_count = count_tokens(prompt)
