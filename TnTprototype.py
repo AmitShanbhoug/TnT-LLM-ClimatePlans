@@ -33,7 +33,7 @@ def count_tokens(text: str) -> int:
     return len(text.split())
 
 # Updated function to handle batches and ensure token limit is not exceeded
-def call_gpt_api_batch(prompts: List[str], model="gpt-4o-mini", max_tokens=7000) -> List[str]:
+def call_gpt_api_batch(prompts: List[str], model="gpt-4o-mini", max_tokens=7400) -> List[str]:
     responses = []
     for prompt in prompts:
         token_count = count_tokens(prompt)
@@ -73,10 +73,10 @@ def preprocess_text(text: str) -> str:
 # Read Description from Excel file
 def read_Description_from_excel(file_path: str) -> List[str]:
     df = pd.read_excel(file_path)
-    return df['Description'].tolist()
+    return df['Description'].head(20).tolist()
 
 # Function to handle batching of documents and calling GPT API
-def summarize_documents(descriptions: List[str], use_case: str, batch_size=15) -> List[str]:
+def summarize_documents(descriptions: List[str], use_case: str, batch_size=5) -> List[str]:
     summaries = []
     batched_prompts = []
     
